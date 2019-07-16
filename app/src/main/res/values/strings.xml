@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">WeatherAPIWknd6</string>
+    <string name="enter_zip_code">Enter Zip Code</string>
+    <string name="set_zip">Set Zip</string>
+</resources>

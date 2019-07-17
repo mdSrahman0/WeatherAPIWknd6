@@ -1,4 +1,4 @@
-package com.example.weatherapiwknd6.model.datasource.local
+package com.example.weatherapiwknd6.model.datasource.local.hourlyweather
 
 
 import com.google.gson.annotations.SerializedName

@@ -96,41 +96,69 @@ class MainActivity : AppCompatActivity() {
             override fun onResponse(call: Call<WeatherResponse>, response: Response<WeatherResponse>) {
                 val weatherResponse = response.body()
 
-                val cityName = weatherResponse!!.name
-                tvCityName.text = cityName
-
-                val currentTemp = weatherResponse.main.temp
-                tvResult.text = currentTemp.toString()
-
-                // set both radio buttons to Visible
-                rbFahrenheit.visibility = VISIBLE
-                rbCelsius.visibility = VISIBLE
-
-                // by default, fahrenheit is displayed
-                rbFahrenheit.isChecked = TRUE
-                getFahrenheit(currentTemp)
-
-                rbFahrenheit.setOnClickListener {
-                    getFahrenheit(currentTemp)
+                // remember, onResponse means we successfully got a response, but information in that response might be null
+                // even if we get a response (meaning the zip code is a 5 digit number), it might be a null. so check it
+                if(weatherResponse == null) {
+                    Toast.makeText(applicationContext, "ZIP CODE DOESN'T EXIST", Toast.LENGTH_LONG).show()
                 }
+                else {
+                    val cityName = weatherResponse!!.name
+                    val currentTemp = weatherResponse.main.temp
+                    tvResult.text = currentTemp.toString()
+                    tvCityName.text = cityName
 
-                rbCelsius.setOnClickListener {
-                    getCelsius(currentTemp)
+                    // set both radio buttons to Visible
+                    rbFahrenheit.visibility = VISIBLE
+                    rbCelsius.visibility = VISIBLE
+
+                    // by default, fahrenheit is displayed
+                    rbFahrenheit.isChecked = TRUE
+                    var fahrTemp = getFahrenheit(currentTemp)
+                    if (fahrTemp > 60.00) {
+                        mainActivityLayout.setBackgroundResource(R.color.colorYellow)
+                    }
+                    if (fahrTemp <= 60.00) {
+                        mainActivityLayout.setBackgroundResource(R.color.colorPrimary)
+                    }
+                    tvResult.text = ("$fahrTemp \u2109")
+
+                    rbFahrenheit.setOnClickListener {
+                        var fahrTemp = getFahrenheit(currentTemp)
+                        if (fahrTemp > 60.00) {
+                            mainActivityLayout.setBackgroundResource(R.color.colorYellow)
+                        }
+                        if (fahrTemp <= 60.00) {
+                            mainActivityLayout.setBackgroundResource(R.color.colorPrimary)
+                        }
+                        tvResult.text = ("$fahrTemp \u2109")
+                        getHourlyWeather(zip, "F")
+                    }
+
+                    rbCelsius.setOnClickListener {
+                        var celTemp = getCelsius(currentTemp)
+                        if (celTemp > 16.00) {
+                            mainActivityLayout.setBackgroundResource(R.color.colorYellow)
+                        }
+                        if (celTemp <= 16.00) {
+                            mainActivityLayout.setBackgroundResource(R.color.colorPrimary)
+                        }
+                        // u2103 is celcius
+                        tvResult.text = ("$celTemp \u2103")
+                        getHourlyWeather(zip, "C")
+                    }
+
+                    // once the current temp has been displayed, call the function to display the hourly weather
+                    getHourlyWeather(zip, "F")
                 }
-
-                // once the current temp has been displayed, call the function to display the hourly weather
-                getHourlyWeather(zip)
             }
 
             override fun onFailure(call: Call<WeatherResponse>, t: Throwable) {
-                //tvResult.text = t.message
                 tvResult.text = "NOT A VALID ZIP CODE"
             }
         })
     }
 
-    fun getHourlyWeather(zip : Int) {
-        Log.d("TAG", "inside")
+    fun getHourlyWeather(zip : Int, degreeType : String) {
         val retrofit = Retrofit.Builder()
             .baseUrl(HOURLY_TEMP_URL)
             .addConverterFactory(GsonConverterFactory.create())
@@ -144,8 +172,7 @@ class MainActivity : AppCompatActivity() {
             override fun onResponse(call: Call<HourlyWeather>, response: Response<HourlyWeather>) {
                 val hourlyWeather = response.body()
                 val hourlyWeatherList = hourlyWeather!!.list
-                populateRecyclerView(hourlyWeatherList)
-                Log.d("TAG", "inside onResponse")
+                populateRecyclerView(hourlyWeatherList, degreeType)
             }
 
             override fun onFailure(call: Call<HourlyWeather>, t: Throwable) {
@@ -154,36 +181,11 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    fun populateRecyclerView(hourlyWeatherList: List<X>) {
+    fun populateRecyclerView(hourlyWeatherList: List<X>, degreeType: String) {
         linearLayoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = linearLayoutManager
         recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL))
-        val recyclerViewAdapter = RecyclerViewAdapter(hourlyWeatherList)
+        val recyclerViewAdapter = RecyclerViewAdapter(hourlyWeatherList, degreeType)
         recyclerView.adapter = recyclerViewAdapter
-    }
-
-    fun getFahrenheit(currentTemp : Float) {
-        var currentTemp = (9.0/5.0)*(currentTemp - 273.0) + 32.0
-        val fahrTemp = currentTemp.toInt()
-        if (fahrTemp > 60.00) {
-            mainActivityLayout.setBackgroundResource(R.color.colorYellow)
-        }
-        if (fahrTemp <= 60.00) {
-            mainActivityLayout.setBackgroundResource(R.color.colorPrimary)
-        }
-        tvResult.text = ("$fahrTemp \u2109")
-    }
-
-    fun getCelsius(currentTemp: Float) {
-        var currentTemp = currentTemp - 273.0
-        var celTemp = currentTemp.toInt()
-        if (celTemp > 16.00) {
-            mainActivityLayout.setBackgroundResource(R.color.colorYellow)
-        }
-        if (celTemp <= 16.00) {
-            mainActivityLayout.setBackgroundResource(R.color.colorPrimary)
-        }
-        // u2103 is celcius
-        tvResult.text =("$celTemp \u2103")
     }
 }

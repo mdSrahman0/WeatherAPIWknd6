@@ -38,3 +38,9 @@ This is a living document. All changes that occur with will be detailed below. M
 	•	October 13, 2015: Updated the document to allow the candidate to use Objective-C or Swift
 	•	July 21, 2015: Updated the document to change “check in” to “locally commit” when referring to version control.
 	•	February 5, 2015: Updated the document to ask for regular version control commits.
+
+
+
+![w1](https://user-images.githubusercontent.com/51377429/61424728-7295b580-a8e2-11e9-9f81-7f4470b46896.jpg)
+![w2](https://user-images.githubusercontent.com/51377429/61424729-745f7900-a8e2-11e9-8af7-359a5061e782.jpg)
+![w3](https://user-images.githubusercontent.com/51377429/61424731-76293c80-a8e2-11e9-8aa3-07dd81c50c8a.jpg)
